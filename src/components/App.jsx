@@ -1,82 +1,78 @@
 import React, { Component } from 'react';
-import { nanoid } from 'nanoid';
-import { ContactForm } from './ContactForm/ContactForm';
-import { ContactList } from './ContactList/ContactList';
-import { FilterContact } from './FilterContact/FilterContact';
+import { Searchbar } from './Searchabr/Searchbar';
+import { ImageGallery } from './ImageGallery/ImageGallery';
+import { Button } from './Button/Button';
+import { Loader } from './Loader/Loader';
 import css from './App.module.css';
+import axios from 'axios';
 
 export class App extends Component {
   state = {
-    contacts: [],
-    filter: '',
+    images: [],
+    keyword: '',
+    page: 1,
+    perPage: 12,
+    loaderOn: false,
   };
 
-  addContact = contact => {
-    const newContact = {
-      name: contact.name,
-      number: contact.number,
-      id: nanoid(),
-    };
+  BASE_URL = 'https://pixabay.com/api/';
+  API_KEY = '37377775-c77698ffc3675e3ed26b97c68';
 
-    const { contacts } = this.state;
-    const existingContact = contacts.map(contact => {
-      return contact.name;
+  fetchImages = async url => {
+    const response = await axios.get(url);
+    const data = await response.data;
+    return data;
+  };
+
+  findImages = () => {
+    this.setState({ loaderOn: true });
+    const url = `${this.BASE_URL}?q=${this.state.keyword}&page=${this.state.page}&key=${this.API_KEY}&image_type=photo&orientation=horizontal&per_page=${this.state.perPage}`;
+    this.fetchImages(url).then(data => {
+      this.setState(prevState => ({
+        images: [...prevState.images, ...data.hits],
+        totalHits: data.totalHits,
+        hits: prevState.hits + data.hits.length,
+        loaderOn: false,
+      }));
     });
-
-    if (existingContact.includes(contact.name)) {
-      return alert(`${contact.name} is already in contacts.`);
-    } else {
-      this.setState(prevState => {
-        return {
-          contacts: [...prevState.contacts, newContact],
-        };
-      });
-    }
   };
 
-  filterChange = event => {
-    this.setState({ filter: event.target.value });
+  handleSearch = query => {
+    this.setState({
+      keyword: query,
+      page: 1,
+      images: [],
+      totalHits: 0,
+      hits: 0,
+    });
   };
 
-  showContact = () => {
-    const { contacts, filter } = this.state;
-    return contacts.filter(contact =>
-      contact.name.toLowerCase().includes(filter.toLowerCase())
-    );
+  loadMore = () => {
+    this.setState(prevState => ({ page: prevState.page + 1 }));
   };
-
-  deleteContact = id => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== id),
-    }));
-  };
-
-  render() {
-    return (
-      <div>
-        <h2 className={css.header}>Phonebook</h2>
-        <ContactForm onSubmit={this.addContact} />
-        <h3 className={css.header}>Contacts</h3>
-        <FilterContact inputChange={this.filterChange} />
-        <ContactList
-          contacts={this.showContact()}
-          deleteContact={this.deleteContact}
-        />
-      </div>
-    );
-  }
 
   componentDidMount() {
-    const savedContacts = localStorage.getItem('contacts');
-    const parsedContacts = JSON.parse(savedContacts);
-    if (parsedContacts) {
-      this.setState({ contacts: parsedContacts });
-    }
+    this.handleSearch('');
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.contacts !== prevState.contacts) {
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+    if (
+      prevState.keyword !== this.state.keyword ||
+      prevState.page !== this.state.page
+    ) {
+      this.findImages();
     }
+  }
+
+  render() {
+    const { images, loaderOn, totalHits } = this.state;
+    return (
+      <div className={css.App}>
+        <Searchbar onSearch={this.handleSearch} />
+        <ImageGallery images={images} />
+        {loaderOn && <Loader />}
+        {totalHits > 12 && <Button onClick={this.loadMore} />}
+      </div>
+    );
   }
 }

@@ -1,1 +1,1 @@
-https://mikasaurus.github.io/goit-react-hw-04-images
+https://mikasaurus.github.io/goit-react-hw-03-image-finder
