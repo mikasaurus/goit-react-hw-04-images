@@ -1,53 +1,38 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import css from './ImageGalleryItem.module.css';
 import { Modal } from 'components/Modal/Modal';
 
-export class ImageGalleryItem extends Component {
-  state = {
-    isModalOpen: false,
-  };
+export const ImageGalleryItem = ({ pic, largePic, tags }) => {
+  const [isModalOn, setIsModalOn] = useState(false);
 
-  openModal = () => {
-    this.setState({ isModalOpen: true });
-  };
+  // closeOnEsc = eve => {
+  //   if (eve.key === 'Escape') {
+  //     this.closeModal();
+  //   }
+  // };
 
-  closeModal = () => {
-    this.setState({ isModalOpen: false });
-  };
+  return (
+    <li className={css.ImageGalleryItem}>
+      <img src={pic} alt={tags} onClick={() => setIsModalOn(true)} />
+      {isModalOn && (
+        <div onClick={() => setIsModalOn(false)}>
+          <Modal src={largePic} tags={tags} />
+        </div>
+      )}
+    </li>
+  );
 
-  closeOnEsc = eve => {
-    if (eve.key === 'Escape') {
-      this.closeModal();
-    }
-  };
+  // componentDidMount() {
+  //   document.addEventListener('keydown', this.closeOnEsc);
+  // }
 
-  render() {
-    const { pic, largePic, tags } = this.props;
-    return (
-      <li className={css.ImageGalleryItem}>
-        <img src={pic} alt={tags} onClick={this.openModal} />
-        {this.state.isModalOpen && (
-          <div onClick={this.closeModal}>
-            <Modal src={largePic} tags={tags} />
-          </div>
-        )}
-      </li>
-    );
-  }
-
-  componentDidMount() {
-    document.addEventListener('keydown', this.closeOnEsc);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.closeOnEsc);
-  }
-}
+  // componentWillUnmount() {
+  //   document.removeEventListener('keydown', this.closeOnEsc);
+  // }
+};
 
 ImageGalleryItem.propTypes = {
-  openModal: PropTypes.func,
-  closeModal: PropTypes.func,
   pic: PropTypes.string,
   largePic: PropTypes.string,
   tags: PropTypes.string,

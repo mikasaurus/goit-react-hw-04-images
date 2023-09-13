@@ -1,49 +1,38 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import css from './Searchbar.module.css';
 
-export class Searchbar extends Component {
-  state = {
-    query: '',
-  };
+export const Searchbar = ({ onChange }) => {
+  const [query, setQuery] = useState('');
 
-  handleChange = eve => {
-    this.setState({ query: eve.target.value });
-  };
-
-  handleSubmit = eve => {
+  const submitHandler = eve => {
     eve.preventDefault();
-    const { query } = this.state;
-    this.props.onSearch(query);
-    this.setState({ query: '' });
+    onChange(query);
+    setQuery('');
   };
 
-  render() {
-    return (
-      <header className={css.Searchbar}>
-        <form onSubmit={this.handleSubmit} className={css.SearchForm}>
-          <button type="submit" className={css.SearchFormButton}>
-            <span className={css.SearchFormLabel}>Search</span>
-          </button>
+  return (
+    <header className={css.Searchbar}>
+      <form onSubmit={submitHandler} className={css.SearchForm}>
+        <button type="submit" className={css.SearchFormButton}>
+          <span className={css.SearchFormLabel}>Search</span>
+        </button>
 
-          <input
-            type="text"
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-            name="search"
-            value={this.state.query}
-            onChange={this.handleChange}
-            className={css.SearchFormInput}
-          />
-        </form>
-      </header>
-    );
-  }
-}
+        <input
+          type="text"
+          autoComplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+          name="search"
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          className={css.SearchFormInput}
+        />
+      </form>
+    </header>
+  );
+};
 
 Searchbar.propTypes = {
-  handleChange: PropTypes.func,
-  handleSubmit: PropTypes.func,
   onChange: PropTypes.func,
 };
