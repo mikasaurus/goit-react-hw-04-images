@@ -2,12 +2,12 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import css from './Searchbar.module.css';
 
-export const Searchbar = ({ onChange }) => {
+export const Searchbar = ({ onSearch }) => {
   const [query, setQuery] = useState('');
 
   const submitHandler = eve => {
     eve.preventDefault();
-    onChange(query);
+    onSearch(query);
     setQuery('');
   };
 
@@ -34,5 +34,5 @@ export const Searchbar = ({ onChange }) => {
 };
 
 Searchbar.propTypes = {
-  onChange: PropTypes.func,
+  onSearch: PropTypes.func,
 };

@@ -11,7 +11,6 @@ export const App = () => {
   const [keyword, setKeyword] = useState('');
   const [page, setPage] = useState(1);
   const [loader, setLoader] = useState(false);
-  const [hits, setHits] = useState(0);
   const [totalHits, setTotalHits] = useState(0);
 
   const BASE_URL = 'https://pixabay.com/api/';
@@ -22,6 +21,16 @@ export const App = () => {
     const data = await response.data;
     return data;
   };
+
+  useEffect(() => {
+    setLoader(true);
+    const url = `${BASE_URL}?q=${keyword}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`;
+    fetchImages(url).then(data => {
+      setImages(prevState => [...prevState, ...data.hits]);
+      setTotalHits(data.totalHits);
+      setLoader(false);
+    });
+  }, [keyword, page]);
 
   const handleSearch = query => {
     setKeyword(query);
@@ -38,17 +47,6 @@ export const App = () => {
   };
 
   useEffect(() => resetSearch(), []);
-
-  useEffect(() => {
-    setLoader(true);
-    const url = `${BASE_URL}?q=${keyword}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`;
-    fetchImages(url).then(data => {
-      setImages(prevState => [...prevState, ...data.hits]);
-      setTotalHits(data.totalHits);
-      setHits(prevState => prevState + data.hits.length);
-      setLoader(false);
-    });
-  }, [keyword, page]);
 
   return (
     <div className={css.App}>

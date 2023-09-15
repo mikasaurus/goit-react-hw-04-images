@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import css from './ImageGalleryItem.module.css';
 import { Modal } from 'components/Modal/Modal';
@@ -6,11 +6,19 @@ import { Modal } from 'components/Modal/Modal';
 export const ImageGalleryItem = ({ pic, largePic, tags }) => {
   const [isModalOn, setIsModalOn] = useState(false);
 
-  // closeOnEsc = eve => {
-  //   if (eve.key === 'Escape') {
-  //     this.closeModal();
-  //   }
-  // };
+  const escFunction = useCallback(event => {
+    if (event.key === 'Escape') {
+      setIsModalOn(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('keydown', escFunction, false);
+
+    return () => {
+      document.removeEventListener('keydown', escFunction, false);
+    };
+  }, [escFunction]);
 
   return (
     <li className={css.ImageGalleryItem}>
@@ -22,14 +30,6 @@ export const ImageGalleryItem = ({ pic, largePic, tags }) => {
       )}
     </li>
   );
-
-  // componentDidMount() {
-  //   document.addEventListener('keydown', this.closeOnEsc);
-  // }
-
-  // componentWillUnmount() {
-  //   document.removeEventListener('keydown', this.closeOnEsc);
-  // }
 };
 
 ImageGalleryItem.propTypes = {
